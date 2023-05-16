@@ -101,7 +101,7 @@ def loan_recommendation():
         pipe = joblib.load('loan_recommendation_pipeline.pkl')
         data = pd.DataFrame(data, columns=cols)
 
-        st.dataframe(data)
+#         st.dataframe(data)
         result = round(pipe.predict(data)[0], 2)
         st.write(f"Based on the details, you are eligible to apply for loan up to RM{result}")
 
