@@ -14,7 +14,7 @@ st.sidebar.subheader("Navigation")
 option = st.sidebar.selectbox("Options", navigation)
 
 def home():
-    st.header("Loan Eligibility")
+    st.header("Credit and Loan Recommendation System")
 
 def loan_recommendation():
     st.header("Loan Recommendation")
