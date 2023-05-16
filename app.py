@@ -98,7 +98,7 @@ def loan_recommendation():
             ]
         ]
 
-        pipe = joblib.load('loan_recommendation_pipeline.pkl')
+        pipe = joblib.load('loan_recommendation_pipeline_v2.pkl')
         data = pd.DataFrame(data, columns=cols)
 
 #         st.dataframe(data)
