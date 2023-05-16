@@ -2,12 +2,114 @@ import streamlit as st
 import pandas as pd
 import joblib
 import json
+import random
+
+# Sidebar 
+navigation = [ 
+    "Home",
+    "Loan Eligibility",
+    "Loan Recommendation"
+]
+st.sidebar.subheader("Navigation")
+option = st.sidebar.selectbox("Options", navigation)
 
 def home():
+    st.header("Loan Eligibility")
+
+def loan_recommendation():
+    st.header("Loan Recommendation")
+    st.write("Suggest suitable amount of loan for each customer.")
+
+    first_name, last_name = st.columns(2)
+    first_name = first_name.text_input("First name")
+    last_name  = last_name.text_input("Last name")
+
+    age = st.slider("Age", 20, 60)
+    annual_income = st.number_input("Annual income", 1000, 100000)
+    house_ownership = st.selectbox("House ownership", ["Rent", "Own", "Mortgage", "Other"])
+
+    if house_ownership != "Rent":
+        house_value = st.number_input("House value", 1000, 1000000)
+    else:
+        house_value = 0
+
+    employment_status = st.selectbox("Are you currently employed?", ["Yes", "No"])
+    if employment_status == "Yes":
+        employment_length = st.number_input("Employment length", 0, 50)
+    else:
+        employment_length = 0
+
+    loan_amount = st.number_input("Loan amount", 1000, 100000)
+    loan_intent = st.selectbox("Loan intent", ["Personal", "Education", "Medical", "Venture"])
+    loan_percent_income = st.number_input("Loan percent income", 0, 100)
+
+    default_history = st.selectbox("Have your ever defaulted?",["No","Yes"]) 
+
+    if default_history == "Yes":
+        num_default = st.number_input("Total number of defaults:", 0, 50)
+        default_history = "Y"
+    else:
+        num_default = 0
+        default_history = "N"
+
+    loan_intent = loan_intent.upper()
+    debt_to_income = random.randint(1, 100)
+    payment_history = random.randint(0, 3)
+    default_amount = random.randint(5000, 10000)
+    
+    if st.button("Submit") == 1:
+        cols = [
+            'person_age',
+            'person_income',
+            'person_home_ownership',
+            'person_home_value',
+            'person_emp_length',
+            'loan_intent',
+            'loan_grade',
+            'loan_amnt',
+            'loan_status',
+            'loan_percent_income',
+            'cb_person_default_on_file',
+            'cb_person_cred_hist_length',
+            'debt_to_income',
+            'payment_histories',
+            'default_amount',
+            'suggested_loan_amount'
+        ]
+
+        data = [
+            [
+                age, 
+                annual_income, 
+                house_ownership, 
+                house_value,   
+                employment_length, 
+                loan_intent, 
+                None, 
+                loan_amount, 
+                None,  
+                round(loan_percent_income / 100, 2), 
+                default_history, 
+                num_default, 
+                round(debt_to_income / 100, 2), 
+                payment_history, 
+                default_amount,
+                None
+            ]
+        ]
+
+        pipe = joblib.load('loan_recommendation_pipeline.pkl')
+        data = pd.DataFrame(data, columns=cols)
+
+        st.dataframe(data)
+        result = round(pipe.predict(data)[0], 2)
+        st.write(f"Based on the details, you are eligible to apply for loan up to RM{result}")
+
+def loan_eligibility():
     data={}
     ## Details Tab:
-    st.header("Credit Risk Assessment System")
-
+    st.header("Loan Eligibility")
+    st.write("Evaluate whether the customer is eligible for loan application.")
     #Full Name:
     first,last=st.columns(2)
     first=first.text_input("Enter your First Name:")
@@ -98,4 +200,9 @@ def home():
         out={1:"The customer is capable of defaulting. \nHence it is risky to provide loan!", 0:"The customer is not defaulting. \nHence it is possible to provide loan!"}
         st.write(f"Based on the details: {out[res]}")
 
-home()
+if option == "Home":
+    home()
+elif option == "Loan Eligibility":
+    loan_eligibility()
+elif option == "Loan Recommendation":
+    loan_recommendation()
